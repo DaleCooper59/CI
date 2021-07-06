@@ -17,6 +17,7 @@
       <th scope="col">Reférence</th>
       <th scope="col">Libellé</th>
       <th scope="col">Description</th>
+      <th scope="col">Photo</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -27,7 +28,8 @@
       <td><?php echo $row->pro_ref ?></td>
       <td><?php echo $row->pro_libelle ?></td>
       <td><?php echo $row->pro_description ?></td>
-      <td><a href="<?php echo site_url('Produits/modifier/' . $row->pro_id )?>">modifier</a> | <a href="<?php echo site_url('Produits/effacer/' . $row->pro_id )?>">effacer</a></td>
+      <td><?php echo $row->pro_photo ?></td>
+      <td><a href="<?php echo site_url('Produits/modifier/' . $row->pro_id )?>">modifier</a> | <a href="<?php echo site_url('Produits/effacer/' . $row->pro_id )?>" onclick="return(confirm('Vous êtes sûr?'));">effacer</a></td>
     </tr>
     <?php endforeach;?>
 

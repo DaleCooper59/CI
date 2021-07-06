@@ -1,7 +1,8 @@
 <?php echo form_open(); ?>
 
 <form action="" method="POST">
-<input type="hidden" name="id" value="<?php echo $produit->pro_id; ?>"> 
+<input type="hidden" name="pro_id" value="<?php echo $produit->pro_id; ?>"> 
+
 
 <div class="form-group">
    <label for="pro_libelle">Libellé</label>

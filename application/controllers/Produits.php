@@ -3,21 +3,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Produits extends CI_Controller 
 {
-    
+    function __construct()
+	{
+	parent::__construct();
+	
+	}
+	
     public function liste()
     //READ
     {
-
-        // Charge la librairie 'database'
-    $this->load->database();
 
     // Exécute la requête 
     $results = $this->db->query("SELECT * FROM produits");  
 
     // Récupération des résultats    
     $aListe = $results->result();   
-
-    // Ajoute des résultats de la requête au tableau des variables à transmettre à la vue   
+  
+    // Ajoute des résultats de la requête au tableau des variables à transmettre à la vue = récupérée sur la vue avec $  
     $aView["liste_produits"] = $aListe;
 
     // Appel de la vue avec transmission du
@@ -31,34 +33,68 @@ class Produits extends CI_Controller
         $this->load->view('footers');
     }
 
+
     public function ajouter()
     //ADD
 {
-    // Chargement des assistants 'form' et 'url'
-    $this->load->helper('form', 'url'); 
-
-    // Chargement de la vue 'ajouter.php'
-    $this->load->database();
-
-     // Chargement de la librairie form_validation
-     $this->load->library('form_validation');
+  $this->load->view('ajouter');
+  $this->load->helper('form');
+  $this->load->library('form_validation');
+	
+if ($this->input->post()) 
+    { 
+     $datas = $this->input->post(); 
 
       // Définition des filtres, ici une valeur doit avoir été saisie pour le champ 'pro_ref'
       $this->form_validation->set_rules("pro_ref", "Référence", "required|min_length[5]", array("required" => "Le %s doit être obligatoire."));
-
+      $this->form_validation->set_rules("pro_description", "Description", "required|min_length[10]", array("required" => "Le %s doit être obligatoire."));
+ 
       $this->form_validation->set_error_delimiters('<div class="alert alert-danger">', '</div>');
 
+            // On extrait l'extension du nom du fichier 
+           // Dans $_FILES["pro_photo"], pro_photo est la valeur donnée à l'attribut name du champ de type 'file'  
+           $extension = substr(strrchr($_FILES["pro_photo"]["name"], "."), 1); 
+          
+           $config['upload_path'] = './assets/img_upload/';
+           $config['file_name'] = $_FILES["pro_photo"]["name"]; 
+           
+        $config['allowed_types'] = 'gif|jpg|png';
+        $config['max_size'] = 2000;
+        $config['max_width'] = 1500;
+        $config['max_height'] = 1500;
+
+        //$this->load->library('upload', $config);
+        $datas['pro_photo'] = $extension;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('pro_photo')) 
+		{
+            $errorUpload = $this->upload->display_errors("<div class='alert alert-danger'>", "</div>");
+
+            $aView["errorUpload"] = $errorUpload;
+
+            error_log($errorUpload, 0);
+
+            $this->load->library('session'); 
+            $this->session->set_flashdata('sUploadError2','Le téléchargement de la photo a échoué.');
+
+            $this->load->view('ajouter', $aView);
+        } 
+		else 
+		{
+            $data = array('image_metadata' => $this->upload->data());
+
+            $this->load->view('imageupload_success', $data);
+        }
+     
     
-    if ($this->input->post()) 
-    { // 2ème appel de la page: traitement du formulaire
+    $this->db->insert('produits', $datas);
 
-         $data = $this->input->post();
-
-         $this->db->insert('produits', $data);
-
-         redirect("produits/liste");
-    } 
-    else 
+    redirect("produits/liste");
+       
+        
+    }else 
     { // 1er appel de la page: affichage du formulaire
         $this->load->view('ajouter');
     }
@@ -68,15 +104,6 @@ class Produits extends CI_Controller
 public function modifier($id)
 //UPDATE
 {
-     // Chargement des assistants 'form' et 'url'
-     //$this->load->helper('form', 'url'); 
-
-     // Chargement de la librairie 'database'
-     $this->load->database();  
- 
-     // Chargement de la librairie form_validation
-     $this->load->library('form_validation'); 
- 
      // Requête de sélection de l'enregistrement souhaité, ici le produit 7 
      $produit = $this->db->query("SELECT * FROM produits WHERE pro_id=" . $id);
      $aView["produit"] = $produit->row(); // première ligne du résultat
@@ -86,6 +113,7 @@ public function modifier($id)
  
         $data = $this->input->post();
  
+       
         // Définition des filtres, ici une valeur doit avoir été saisie pour le champ 'pro_ref'
         $this->form_validation->set_rules('pro_ref', 'Référence', 'required');
  
@@ -116,8 +144,7 @@ public function modifier($id)
 public function effacer($id)
 //DELETE
 {
-    $this->load->database();
-
+   
     $this->db->where('pro_id', $id);
 
     $this->db->delete('produits');

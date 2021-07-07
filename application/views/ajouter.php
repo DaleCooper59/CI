@@ -1,4 +1,4 @@
- 
+
 <?php echo form_open_multipart('Produits/ajouter'); ?>
 
 <h2>Veuillez remplir ces champs pour ajouter le produit</h2>

@@ -37,9 +37,7 @@ class Produits extends CI_Controller
     public function ajouter()
     //ADD
 {
-  $this->load->view('ajouter');
-  $this->load->helper('form');
-  $this->load->library('form_validation');
+ 
 	
 if ($this->input->post()) 
     { 
@@ -94,8 +92,7 @@ if ($this->input->post())
     redirect("produits/liste");
        
         
-    }else 
-    { // 1er appel de la page: affichage du formulaire
+    }else{
         $this->load->view('ajouter');
     }
 } // -- ajouter()
